@@ -1,0 +1,62 @@
+using Google.GenAI;
+using Google.GenAI.Types;
+
+public class Gemini_Tools
+{
+    private readonly Client GeminiModel;
+    private readonly string Model;
+    private readonly List<Content> history = new();
+    private readonly string? systemPrompt;
+    private readonly List<Tool>? tools;
+
+    public Gemini_Tools(string model, string? systemPrompt = null, List<Tool>? tools = null)
+    {
+        GeminiModel = new Client();
+        Model = model;
+        this.systemPrompt = systemPrompt;
+        this.tools = tools;
+    }
+
+    public Task<GenerateContentResponse> Call(string userMessage)
+    {
+        var newItems = new List<Content>
+        {
+            new Content { Role = "user", Parts = [ new Part { Text = userMessage } ] }
+        };
+
+        return Call(newItems);
+    }
+
+    public async Task<GenerateContentResponse> Call(List<Content> newItems)
+    {
+        foreach (var item in newItems)
+        {
+            history.Add(item);
+        }
+
+        var config = CreateConfig();
+
+        var response = await GeminiModel.Models.GenerateContentAsync(model: Model, contents: history, config: config);
+                
+        history.Add(response.Candidates[0].Content);
+        
+        return response;
+    }
+
+    private GenerateContentConfig CreateConfig()
+    {
+        var config = new GenerateContentConfig();
+
+        if (!string.IsNullOrWhiteSpace(systemPrompt))
+        {
+            config.SystemInstruction = new Content { Parts = [ new Part { Text = systemPrompt } ] };
+        }
+
+        if (tools is not null)
+        {
+            config.Tools = tools;
+        }
+
+        return config;
+    }
+}

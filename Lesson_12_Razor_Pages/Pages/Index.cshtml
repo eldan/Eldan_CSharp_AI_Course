@@ -1,0 +1,222 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Semantic Kernel Tutorial";
+}
+
+<div class="text-center mb-5">
+    <h1 class="display-4 fw-bold text-primary mb-3"><i class="bi bi-robot text-primary me-2"></i> Semantic Kernel Tutorial</h1>
+    <!-- Author Section -->
+    <div class="author-section mb-4">
+        <p class="mb-2">
+            <span class="text-muted">Created by</span>
+            <strong class="text-primary mx-2">Gilad Markman</strong>
+        </p>
+        <div class="author-links">
+            <a href="https://webprogramming.azurewebsites.net/" target="_blank"
+               class="btn btn-outline-primary btn-sm author-link">
+                <i class="bi bi-globe me-1"></i>Web Programming
+            </a>
+        </div>
+    </div>
+    <p class="lead text-muted mb-4">
+        Learn how to build AI-powered applications with <strong>Microsoft Semantic Kernel</strong> and <strong>ASP.NET Core Razor Pages</strong>
+    </p>
+    <div class="bg-light rounded p-3 mb-4">
+        <p class="mb-0">
+            <strong>🎯 Tutorial Goals:</strong> Master Semantic Kernel integration with C# • Build interactive AI applications • Explore text, image, and audio generation
+        </p>
+    </div>
+</div>
+
+<div class="row g-4 justify-content-center">
+    <!-- Chat Card -->
+    <div class="col-lg-4 col-md-6">
+        <div class="card h-100 shadow-sm border-0 hover-card">
+            <div class="card-header bg-primary text-white text-center py-3">
+                <div class="display-1 mb-2">💬</div>
+                <h4 class="mb-0 fw-bold">AI Chat</h4>
+            </div>
+            <div class="card-body d-flex flex-column">
+                <p class="card-text text-muted mb-3">
+                    Interactive chat with GPT models powered by Semantic Kernel. Features web search integration with Tavily for real-time information.
+                </p>
+                <div class="mb-3">
+                    <h6 class="text-primary mb-2">✨ Features:</h6>
+                    <ul class="list-unstyled small text-muted">
+                        <li>• GPT-4 powered conversations</li>
+                        <li>• Real-time web search</li>
+                        <li>• Chat history persistence</li>
+                        <li>• RTL/LTR text direction support</li>
+                    </ul>
+                </div>
+                <div class="mt-auto">
+                    <a asp-page="/Chat" class="btn btn-primary btn-lg w-100">
+                        Start Chatting 🚀
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Generation Card -->
+    <div class="col-lg-4 col-md-6">
+        <div class="card h-100 shadow-sm border-0 hover-card">
+            <div class="card-header bg-success text-white text-center py-3">
+                <div class="display-1 mb-2">🎨</div>
+                <h4 class="mb-0 fw-bold">Image Generation</h4>
+            </div>
+            <div class="card-body d-flex flex-column">
+                <p class="card-text text-muted mb-3">
+                    Create stunning AI-generated images using DALL-E 3. Transform your ideas into beautiful visual art with customizable settings.
+                </p>
+                <div class="mb-3">
+                    <h6 class="text-success mb-2">✨ Features:</h6>
+                    <ul class="list-unstyled small text-muted">
+                        <li>• DALL-E 3 powered generation</li>
+                        <li>• Multiple size options</li>
+                        <li>• HD quality settings</li>
+                        <li>• Vivid & Natural styles</li>
+                    </ul>
+                </div>
+                <div class="mt-auto">
+                    <a asp-page="/Image_Gen" class="btn btn-success btn-lg w-100">
+                        Generate Images 🎭
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Voice Generation Card -->
+    <div class="col-lg-4 col-md-6">
+        <div class="card h-100 shadow-sm border-0 hover-card">
+            <div class="card-header bg-info text-white text-center py-3">
+                <div class="display-1 mb-2">🗣️</div>
+                <h4 class="mb-0 fw-bold">Voice Generation</h4>
+            </div>
+            <div class="card-body d-flex flex-column">
+                <p class="card-text text-muted mb-3">
+                    Convert text to natural-sounding speech using OpenAI's TTS models. Choose from multiple voices and audio formats.
+                </p>
+                <div class="mb-3">
+                    <h6 class="text-info mb-2">✨ Features:</h6>
+                    <ul class="list-unstyled small text-muted">
+                        <li>• OpenAI TTS-1 model</li>
+                        <li>• 6 different voice options</li>
+                        <li>• Multiple audio formats</li>
+                        <li>• Adjustable speech speed</li>
+                    </ul>
+                </div>
+                <div class="mt-auto">
+                    <a asp-page="/Voice_Gen" class="btn btn-info btn-lg w-100">
+                        Generate Speech 🎵
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RAG Tutorial Card -->
+    <div class="col-lg-4 col-md-6">
+        <div class="card h-100 shadow-sm border-0 hover-card">
+            <div class="card-header bg-warning text-white text-center py-3">
+                <div class="display-1 mb-2">📚</div>
+                <h4 class="mb-0 fw-bold">RAG Tutorial</h4>
+            </div>
+            <div class="card-body d-flex flex-column">
+                <p class="card-text text-muted mb-3">
+                    Learn Retrieval Augmented Generation (RAG) with Semantic Kernel. Upload documents and chat with your data using AI embeddings and ChromaDB vector database.
+                </p>
+                <div class="mb-3">
+                    <h6 class="text-warning mb-2">✨ Features:</h6>
+                    <ul class="list-unstyled small text-muted">
+                        <li>• Document upload & processing</li>
+                        <li>• AI-powered embeddings</li>
+                        <li>• ChromaDB vector database</li>
+                        <li>• Semantic search</li>
+                        <li>• Chat with your documents</li>
+                    </ul>
+                </div>
+                <div class="mt-auto">
+                    <a asp-page="/RAG" class="btn btn-warning btn-lg w-100">
+                        Start RAG Chat 🤖
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summarization Card -->
+    <div class="col-lg-4 col-md-6">
+        <div class="card h-100 shadow-sm border-0 hover-card">
+            <div class="card-header bg-purple text-white text-center py-3">
+                <div class="display-1 mb-2">📄</div>
+                <h4 class="mb-0 fw-bold">Summarization</h4>
+            </div>
+            <div class="card-body d-flex flex-column">
+                <p class="card-text text-muted mb-3">
+                    Automatically summarize long texts, documents, and articles using AI. Extract key insights and main points efficiently.
+                </p>
+                <div class="mb-3">
+                    <h6 class="text-purple mb-2">✨ Features:</h6>
+                    <ul class="list-unstyled small text-muted">
+                        <li>• AI-powered text summarization</li>
+                        <li>• Multiple summary lengths</li>
+                        <li>• Key points extraction</li>
+                        <li>• Document processing</li>
+                    </ul>
+                </div>
+                <div class="mt-auto">
+                    <a asp-page="/Summarization" class="btn btn-purple btn-lg w-100">
+                        Summarize Documents 📄
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<hr class="my-5">
+
+<div class="row">
+    <div class="col-12">
+        <div class="bg-light rounded p-4 text-center">
+            <h5 class="text-primary mb-3">📚 About This Tutorial</h5>
+            <p class="text-muted mb-3">
+                This application demonstrates how to integrate <strong>Microsoft Semantic Kernel</strong> with ASP.NET Core Razor Pages 
+                to build powerful AI applications. Each feature showcases different aspects of AI integration:
+            </p>
+            <div class="row g-3 text-start">
+                <div class="col-md-4">
+                    <div class="d-flex align-items-start">
+                        <span class="badge bg-primary rounded-circle me-2 mt-1">1</span>
+                        <div>
+                            <strong>Chat:</strong> Learn how to implement conversational AI with function calling and web search capabilities.
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex align-items-start">
+                        <span class="badge bg-success rounded-circle me-2 mt-1">2</span>
+                        <div>
+                            <strong>Images:</strong> Explore text-to-image generation with customizable settings and file management.
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex align-items-start">
+                        <span class="badge bg-info rounded-circle me-2 mt-1">3</span>
+                        <div>
+                            <strong>Voice:</strong> Implement text-to-speech functionality with various voice options and formats.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
