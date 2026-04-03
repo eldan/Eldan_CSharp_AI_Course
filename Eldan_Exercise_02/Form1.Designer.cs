@@ -11,9 +11,7 @@ namespace Eldan_Exercise_02
         private System.Windows.Forms.ComboBox comboBoxCompany;
         private System.Windows.Forms.ComboBox comboBoxOpenAIModel;
         private System.Windows.Forms.ComboBox comboBoxGeminiModel;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelCombos; // Add this field declaration to the class to fix CS0103
-
-  
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelCombos;
 
         protected override void Dispose(bool disposing)
         {
@@ -132,6 +130,23 @@ namespace Eldan_Exercise_02
             flowLayoutPanelCombos.Controls.Add(comboBoxCompany);
             flowLayoutPanelCombos.Controls.Add(comboBoxOpenAIModel);
             flowLayoutPanelCombos.Controls.Add(comboBoxGeminiModel);
+
+            // Re-add the Clear button to the FlowLayoutPanel
+            Button buttonClear = new Button();
+            buttonClear.Text = "Clear";
+            buttonClear.Size = new Size(100, 23);
+            buttonClear.TabIndex = 6;
+            buttonClear.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            flowLayoutPanelCombos.Controls.Add(buttonClear);
+            buttonClear.Click += buttonClear_Click;
+
+            // Add a CheckBox for "Stream Data" before the Clear button
+            CheckBox checkBoxStreamData = new CheckBox();
+            checkBoxStreamData.Text = "Stream Data";
+            checkBoxStreamData.AutoSize = true;
+            checkBoxStreamData.TabIndex = 5;
+            flowLayoutPanelCombos.Controls.Add(checkBoxStreamData);
+            flowLayoutPanelCombos.Controls.SetChildIndex(checkBoxStreamData, flowLayoutPanelCombos.Controls.Count - 2);
         }
     }
 }

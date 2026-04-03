@@ -77,6 +77,7 @@ namespace Eldan_Exercise_02
       }
     }
 
+    // Modify the buttonSend_Click method to send the entire chat history to the AI server
     private async void buttonSend_Click(object sender, EventArgs e)
     {
       string userMessage = textBoxInput.Text.Trim();
@@ -97,16 +98,19 @@ namespace Eldan_Exercise_02
       {
         isGemini = true;
       }
-    
+
       Color aiBackColor;
       try
       {
+        // Combine the entire chat history into a single string
+        string fullConversation = string.Join("\n", chatHistory.ConvertAll(msg => $"{msg.Sender} {msg.Text}"));
+
         if (isGemini)
         {
           // Retrieve the selected Gemini model
           GeminiModels selectedGeminiEnum = (GeminiModels)Enum.Parse(typeof(GeminiModels), comboBoxGeminiModel.SelectedItem.ToString());
-          string selectedGeminiModel = GetEnumDisplayName(selectedGeminiEnum);
-          aiResponse = await Gemini_SDK.Call(userMessage, selectedGeminiModel);
+          string selectedGeminiModel = EnumDisplayNameHelper.GetEnumDisplayName(selectedGeminiEnum);
+          aiResponse = await Gemini_SDK.Call(fullConversation, selectedGeminiModel);
           aiPrefix = "Gemeni: ";
           aiBackColor = Color.FromArgb(230, 240, 255); // light blue
         }
@@ -115,20 +119,19 @@ namespace Eldan_Exercise_02
           // Ensure the SelectedItem is not null before parsing
           if (comboBoxOpenAIModel.SelectedItem != null)
           {
-            Console.WriteLine("");
-              // Retrieve the selected OpenAI model
-              OpenAIModels selectedOpenAIEnum = (OpenAIModels)Enum.Parse(typeof(OpenAIModels), comboBoxOpenAIModel.SelectedItem.ToString());
-              string selectedModel = GetEnumDisplayName(selectedOpenAIEnum);
-              var openAiSdk = new OpenAI_SDK(selectedModel);
-              aiResponse = await openAiSdk.Call(userMessage);
-              aiPrefix = "ChatGpt: ";
-              aiBackColor = Color.FromArgb(255, 230, 230); // light red
+            // Retrieve the selected OpenAI model
+            OpenAIModels selectedOpenAIEnum = (OpenAIModels)Enum.Parse(typeof(OpenAIModels), comboBoxOpenAIModel.SelectedItem.ToString());
+            string selectedModel = EnumDisplayNameHelper.GetEnumDisplayName(selectedOpenAIEnum);
+            var openAiSdk = new OpenAI_SDK(selectedModel);
+            aiResponse = await openAiSdk.Call(fullConversation);
+            aiPrefix = "ChatGpt: ";
+            aiBackColor = Color.FromArgb(255, 230, 230); // light red
           }
           else
           {
-              // Handle the case where no item is selected
-              MessageBox.Show("Please select an OpenAI model.", "Selection Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-              return; // Exit the method if no model is selected
+            // Handle the case where no item is selected
+            MessageBox.Show("Please select an OpenAI model.", "Selection Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return; // Exit the method if no model is selected
           }
         }
       }
@@ -148,12 +151,13 @@ namespace Eldan_Exercise_02
 
     }
 
-    private static string GetEnumDisplayName<TEnum>(TEnum value) where TEnum : Enum
+    // Add the Click event handler for the Clear button
+    private void buttonClear_Click(object sender, EventArgs e)
     {
-        var member = typeof(TEnum).GetMember(value.ToString())[0];
-        var displayAttr = (DisplayAttribute)Attribute.GetCustomAttribute(member, typeof(DisplayAttribute));
-        return displayAttr?.Name ?? value.ToString();
+        chatHistory.Clear();
+        RefreshChat();
     }
+
   }
 
   public class ChatMessage
