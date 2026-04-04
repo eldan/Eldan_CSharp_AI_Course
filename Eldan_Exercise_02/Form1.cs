@@ -16,8 +16,9 @@ namespace Eldan_Exercise_02
     {
       InitializeComponent();
       comboBoxCompany.DrawMode = DrawMode.Normal;
-      listBoxChat.DrawMode = DrawMode.OwnerDrawFixed;
+      listBoxChat.DrawMode = DrawMode.OwnerDrawVariable;
       listBoxChat.DrawItem += listBoxChat_DrawItem;
+      listBoxChat.MeasureItem += listBoxChat_MeasureItem;
       comboBoxCompany.SelectedIndexChanged += ComboBoxModel_SelectedIndexChanged;
 
       // Populate ComboBox with enum values
@@ -30,8 +31,10 @@ namespace Eldan_Exercise_02
       ComboBoxModel_SelectedIndexChanged(comboBoxCompany, EventArgs.Empty);
 
       comboBoxOpenAIModel.DrawMode = DrawMode.Normal;
-
       comboBoxGeminiModel.DrawMode = DrawMode.Normal;
+
+
+
     }
 
     private void ComboBoxModel_SelectedIndexChanged(object sender, EventArgs e)
@@ -63,9 +66,23 @@ namespace Eldan_Exercise_02
       }
       using (SolidBrush b = new SolidBrush(backColor))
         e.Graphics.FillRectangle(b, e.Bounds);
+      
+      string text = msg?.ToString() ?? listBoxChat.Items[e.Index].ToString();
       using (SolidBrush b = new SolidBrush(foreColor))
-        e.Graphics.DrawString(msg?.ToString() ?? listBoxChat.Items[e.Index].ToString(), e.Font, b, e.Bounds);
+        e.Graphics.DrawString(text, e.Font, b, e.Bounds, StringFormat.GenericDefault);
+      
       e.DrawFocusRectangle();
+    }
+
+    private void listBoxChat_MeasureItem(object sender, MeasureItemEventArgs e)
+    {
+      if (e.Index < 0) return;
+      var msg = listBoxChat.Items[e.Index] as ChatMessage;
+      string text = msg?.ToString() ?? listBoxChat.Items[e.Index].ToString();
+
+      // Use the ListBox's Font property instead of e.Font
+      SizeF textSize = e.Graphics.MeasureString(text, listBoxChat.Font, listBoxChat.Width - 10);
+      e.ItemHeight = (int)Math.Ceiling(textSize.Height) + 4; // Add padding
     }
 
     private void RefreshChat()
@@ -121,8 +138,9 @@ namespace Eldan_Exercise_02
           {
             // Retrieve the selected OpenAI model
             OpenAIModels selectedOpenAIEnum = (OpenAIModels)Enum.Parse(typeof(OpenAIModels), comboBoxOpenAIModel.SelectedItem.ToString());
+
             string selectedModel = EnumDisplayNameHelper.GetEnumDisplayName(selectedOpenAIEnum);
-            var openAiSdk = new OpenAI_SDK(selectedModel);
+            var openAiSdk = new OpenAI_SDK_Response(selectedModel,"Respond normaly");
             aiResponse = await openAiSdk.Call(fullConversation);
             aiPrefix = "ChatGpt: ";
             aiBackColor = Color.FromArgb(255, 230, 230); // light red
@@ -161,11 +179,11 @@ namespace Eldan_Exercise_02
   }
 
   public class ChatMessage
-    {
-        public string Sender { get; set; }
-        public string Text { get; set; }
-        public bool IsAI { get; set; }
-        public Color AIBackColor { get; set; } = Color.White;
-        public override string ToString() => $"{Sender} {Text}";
-    }
+  {
+      public string Sender { get; set; }
+      public string Text { get; set; }
+      public bool IsAI { get; set; }
+      public Color AIBackColor { get; set; } = Color.White;
+      public override string ToString() => $"{Sender} {Text}";
+  }
 }

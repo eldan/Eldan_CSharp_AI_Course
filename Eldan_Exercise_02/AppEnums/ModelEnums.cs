@@ -12,11 +12,11 @@ namespace Eldan_Exercise_02.AppEnums
 
   public enum OpenAIModels
   {
-    [Display(Name = "gpt-4.1-2025-04-14")]
-    GPT4,
+    [Display(Name = "gpt-5.2")]
+    GPT5dot2,
 
     [Display(Name = "gpt-4o-mini-2024-07-18")]
-    GPT_4o_Mini
+    GPT4oMini
   }
 
   public enum GeminiModels

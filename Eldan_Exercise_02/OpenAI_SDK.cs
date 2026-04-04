@@ -25,4 +25,5 @@ public class OpenAI_SDK
         history.Add(new AssistantChatMessage(text));
         return text;
     }
+
 }

@@ -55,14 +55,14 @@ namespace Eldan_Exercise_02
             // listBoxChat
             // 
             listBoxChat.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            listBoxChat.DrawMode = DrawMode.OwnerDrawFixed;
+            listBoxChat.DrawMode = DrawMode.OwnerDrawVariable; // Changed from OwnerDrawFixed
             listBoxChat.FormattingEnabled = true;
-            listBoxChat.ItemHeight = 15;
             listBoxChat.Location = new Point(12, 12);
             listBoxChat.Name = "listBoxChat";
             listBoxChat.Size = new Size(768, 349);
             listBoxChat.TabIndex = 2;
             listBoxChat.DrawItem += listBoxChat_DrawItem;
+            listBoxChat.MeasureItem += listBoxChat_MeasureItem; // Add MeasureItem event
             // 
             // comboBoxCompany
             // 
@@ -139,14 +139,6 @@ namespace Eldan_Exercise_02
             buttonClear.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             flowLayoutPanelCombos.Controls.Add(buttonClear);
             buttonClear.Click += buttonClear_Click;
-
-            // Add a CheckBox for "Stream Data" before the Clear button
-            CheckBox checkBoxStreamData = new CheckBox();
-            checkBoxStreamData.Text = "Stream Data";
-            checkBoxStreamData.AutoSize = true;
-            checkBoxStreamData.TabIndex = 5;
-            flowLayoutPanelCombos.Controls.Add(checkBoxStreamData);
-            flowLayoutPanelCombos.Controls.SetChildIndex(checkBoxStreamData, flowLayoutPanelCombos.Controls.Count - 2);
         }
     }
 }
