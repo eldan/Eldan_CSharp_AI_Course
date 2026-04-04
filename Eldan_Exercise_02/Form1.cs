@@ -11,6 +11,8 @@ namespace Eldan_Exercise_02
   public partial class Form1 : Form
   {
     private List<ChatMessage> chatHistory = new List<ChatMessage>();
+    private DateTime lastUIUpdate = DateTime.MinValue;
+    private const int UI_UPDATE_THROTTLE_MS = 50;
 
     public Form1()
     {
@@ -32,9 +34,6 @@ namespace Eldan_Exercise_02
 
       comboBoxOpenAIModel.DrawMode = DrawMode.Normal;
       comboBoxGeminiModel.DrawMode = DrawMode.Normal;
-
-
-
     }
 
     private void ComboBoxModel_SelectedIndexChanged(object sender, EventArgs e)
@@ -80,21 +79,42 @@ namespace Eldan_Exercise_02
       var msg = listBoxChat.Items[e.Index] as ChatMessage;
       string text = msg?.ToString() ?? listBoxChat.Items[e.Index].ToString();
 
-      // Use the ListBox's Font property instead of e.Font
       SizeF textSize = e.Graphics.MeasureString(text, listBoxChat.Font, listBoxChat.Width - 10);
-      e.ItemHeight = (int)Math.Ceiling(textSize.Height) + 4; // Add padding
+      e.ItemHeight = (int)Math.Ceiling(textSize.Height) + 4;
     }
 
-    private void RefreshChat()
+    private void RefreshChatAll()
     {
       listBoxChat.Items.Clear();
       foreach (var msg in chatHistory)
       {
         listBoxChat.Items.Add(msg);
       }
+      listBoxChat.TopIndex = Math.Max(0, listBoxChat.Items.Count - 1);
     }
 
-    // Modify the buttonSend_Click method to send the entire chat history to the AI server
+    private void RefreshChat()
+    {
+      listBoxChat.Items.Add(chatHistory[chatHistory.Count - 1]);
+      listBoxChat.TopIndex = Math.Max(0, listBoxChat.Items.Count - 1);
+    }
+
+    private void UpdateLastMessageThrottled()
+    {
+      if (DateTime.Now - lastUIUpdate < TimeSpan.FromMilliseconds(UI_UPDATE_THROTTLE_MS))
+      {
+        return;
+      }
+
+      lastUIUpdate = DateTime.Now;
+      if (listBoxChat.Items.Count > 0)
+      {
+        int lastIndex = listBoxChat.Items.Count - 1;
+        listBoxChat.Invalidate(listBoxChat.GetItemRectangle(lastIndex));
+        listBoxChat.Update();
+      }
+    }
+
     private async void buttonSend_Click(object sender, EventArgs e)
     {
       string userMessage = textBoxInput.Text.Trim();
@@ -104,86 +124,95 @@ namespace Eldan_Exercise_02
       }
 
       chatHistory.Add(new ChatMessage { Sender = "You: ", Text = userMessage, IsAI = false });
-      RefreshChat();
+      RefreshChatAll();
       textBoxInput.Clear();
+      buttonSend.Enabled = false;
 
-      string aiResponse;
-      string aiPrefix;
-      var selected = comboBoxCompany.SelectedItem;
-      bool isGemini = false;
-      if (selected.ToString() == CompanyType.Gemini.ToString())
-      {
-        isGemini = true;
-      }
-
-      Color aiBackColor;
       try
       {
-        // Combine the entire chat history into a single string
-        string fullConversation = string.Join("\n", chatHistory.ConvertAll(msg => $"{msg.Sender} {msg.Text}"));
-
-        if (isGemini)
-        {
-          // Retrieve the selected Gemini model
-          GeminiModels selectedGeminiEnum = (GeminiModels)Enum.Parse(typeof(GeminiModels), comboBoxGeminiModel.SelectedItem.ToString());
-          string selectedGeminiModel = EnumDisplayNameHelper.GetEnumDisplayName(selectedGeminiEnum);
-          aiResponse = await Gemini_SDK.Call(fullConversation, selectedGeminiModel);
-          aiPrefix = "Gemeni: ";
-          aiBackColor = Color.FromArgb(230, 240, 255); // light blue
-        }
-        else
-        {
-          // Ensure the SelectedItem is not null before parsing
-          if (comboBoxOpenAIModel.SelectedItem != null)
-          {
-            // Retrieve the selected OpenAI model
-            OpenAIModels selectedOpenAIEnum = (OpenAIModels)Enum.Parse(typeof(OpenAIModels), comboBoxOpenAIModel.SelectedItem.ToString());
-
-            string selectedModel = EnumDisplayNameHelper.GetEnumDisplayName(selectedOpenAIEnum);
-            var openAiSdk = new OpenAI_SDK_Response(selectedModel,"Respond normaly");
-            aiResponse = await openAiSdk.Call(fullConversation);
-            aiPrefix = "ChatGpt: ";
-            aiBackColor = Color.FromArgb(255, 230, 230); // light red
-          }
-          else
-          {
-            // Handle the case where no item is selected
-            MessageBox.Show("Please select an OpenAI model.", "Selection Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            return; // Exit the method if no model is selected
-          }
-        }
+        await HandleStreamingResponse();
       }
       catch (Exception ex)
       {
-        aiResponse = "Error: " + ex.Message;
-        aiPrefix = isGemini ? "Gemeni: " : "ChatGpt: ";
-        aiBackColor = isGemini ? Color.FromArgb(230, 240, 255) : Color.FromArgb(255, 230, 230);
+        var selected = comboBoxCompany.SelectedItem;
+        bool isGemini = selected.ToString() == CompanyType.Gemini.ToString();
+        string aiPrefix = isGemini ? "Gemeni: " : "ChatGpt: ";
+        Color aiBackColor = isGemini ? Color.FromArgb(230, 240, 255) : Color.FromArgb(255, 230, 230);
+        string errorMessage = "Error: " + ex.Message;
+        chatHistory.Add(new ChatMessage { Sender = aiPrefix.Trim(), Text = errorMessage, IsAI = true, AIBackColor = aiBackColor });
+        RefreshChat();
+      }
+      finally
+      {
+        buttonSend.Enabled = true;
+      }
+    }
+
+    private async Task HandleStreamingResponse()
+    {
+      var selected = comboBoxCompany.SelectedItem;
+      bool isGemini = selected.ToString() == CompanyType.Gemini.ToString();
+      string aiPrefix = isGemini ? "Gemeni: " : "ChatGpt: ";
+      Color aiBackColor = isGemini ? Color.FromArgb(230, 240, 255) : Color.FromArgb(255, 230, 230);
+
+      ChatMessage aiMessage = new ChatMessage { Sender = aiPrefix.Trim(), Text = "", IsAI = true, AIBackColor = aiBackColor };
+      chatHistory.Add(aiMessage);
+      RefreshChatAll();
+
+      string fullConversation = string.Join("\n", chatHistory.ConvertAll(msg => $"{msg.Sender} {msg.Text}"));
+
+      if (isGemini)
+      {
+        GeminiModels selectedGeminiEnum = (GeminiModels)Enum.Parse(typeof(GeminiModels), comboBoxGeminiModel.SelectedItem.ToString());
+        string selectedGeminiModel = EnumDisplayNameHelper.GetEnumDisplayName(selectedGeminiEnum);
+        var geminiSdk = new Gemini_SDK(selectedGeminiModel, "Respond normally");
+
+        await foreach (var chunk in geminiSdk.CallStream(fullConversation))
+        {
+          aiMessage.Text += chunk;
+          UpdateLastMessageThrottled();
+        }
+      }
+      else
+      {
+        if (comboBoxOpenAIModel.SelectedItem != null)
+        {
+          OpenAIModels selectedOpenAIEnum = (OpenAIModels)Enum.Parse(typeof(OpenAIModels), comboBoxOpenAIModel.SelectedItem.ToString());
+          string selectedModel = EnumDisplayNameHelper.GetEnumDisplayName(selectedOpenAIEnum);
+          var openAiSdk = new OpenAI_SDK_Response(selectedModel, "Respond normally");
+
+          await foreach (var chunk in openAiSdk.CallStream(fullConversation))
+          {
+            aiMessage.Text += chunk;
+            UpdateLastMessageThrottled();
+          }
+        }
+        else
+        {
+          MessageBox.Show("Please select an OpenAI model.", "Selection Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
       }
 
-      chatHistory.Add(new ChatMessage { Sender = aiPrefix.Trim(), Text = aiResponse, IsAI = true, AIBackColor = aiBackColor });
-      RefreshChat();
+      UpdateLastMessageThrottled();
     }
 
     private void comboBoxOpenAIModel_SelectedIndexChanged(object sender, EventArgs e)
     {
-
     }
 
-    // Add the Click event handler for the Clear button
     private void buttonClear_Click(object sender, EventArgs e)
     {
-        chatHistory.Clear();
-        RefreshChat();
+      chatHistory.Clear();
+      RefreshChatAll();
     }
-
   }
 
   public class ChatMessage
   {
-      public string Sender { get; set; }
-      public string Text { get; set; }
-      public bool IsAI { get; set; }
-      public Color AIBackColor { get; set; } = Color.White;
-      public override string ToString() => $"{Sender} {Text}";
+    public string Sender { get; set; }
+    public string Text { get; set; }
+    public bool IsAI { get; set; }
+    public Color AIBackColor { get; set; } = Color.White;
+    public override string ToString() => $"{Sender} {Text}";
   }
 }
