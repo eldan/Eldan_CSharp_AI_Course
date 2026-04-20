@@ -5,6 +5,10 @@ using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Eldan_Exercise_03.AppEnums;
+using DotNetEnv;
+using OpenAI.Responses;
+using System.Text;
+using Eldan_Exercise_03.AI_Tools;
 
 namespace Eldan_Exercise_03
 {
@@ -27,6 +31,8 @@ namespace Eldan_Exercise_03
       comboBoxCompany.Items.Clear();
       comboBoxCompany.Items.AddRange(new object[] { "OpenAI", "Gemini" });
       comboBoxCompany.SelectedIndex = 0;
+      chatHistory.Add(new ChatMessage { Sender = "", Text = "ASk who can sit next to each other, you can ask later on the reason:\n Dan, Emma, Noah, Olivia, Liam, Sophia, Lucas, Mia, Ethan, Ava, James, Ella, Henry, Leo, Chloe, Jack, Grace, Zoe, Lily, Aria, Nora, Hannah, Caleb, Isaac, Aaron, Eli, Owen, Wyatt, Logan, Mason", IsAI = false });
+      RefreshChatAll();
     }
 
     private void ComboBoxModel_SelectedIndexChanged(object sender, EventArgs e)
@@ -150,7 +156,7 @@ namespace Eldan_Exercise_03
 
       if (isGemini)
       {
-        var geminiSdk = new Gemini_SDK("gemini-2.5-flash", "Respond normally");
+        var geminiSdk = new Gemini_SDK("gemini-2.5-flash", "Respond normally and use tools when needed. Always explain your reasoning after using a tool - explain why the result is what it is.");
 
         await foreach (var chunk in geminiSdk.CallStream(fullConversation))
         {
@@ -160,9 +166,9 @@ namespace Eldan_Exercise_03
       }
       else
       {
-        var openAiSdk = new OpenAI_SDK_Response("gpt-5.2", "Respond normally");
+        var toolsGpt = new Tools_GPT("Respond normally and use tools when needed. Always explain your reasoning after using a tool - explain why the result is what it is.");
 
-        await foreach (var chunk in openAiSdk.CallStream(fullConversation))
+        await foreach (var chunk in toolsGpt.CallStream(fullConversation))
         {
           aiMessage.Text += chunk;
           UpdateLastMessageThrottled();

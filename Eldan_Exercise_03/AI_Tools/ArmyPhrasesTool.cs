@@ -9,6 +9,7 @@ namespace Eldan_Exercise_03.AI_Tools
     private static ArmyPhrasesTool _instance;
 
     private List<string> knowledgeBase = new List<string>();
+    private Dictionary<string, string> phraseExplanations = new Dictionary<string, string>();
 
     public static ArmyPhrasesTool Instance
     {
@@ -37,6 +38,7 @@ namespace Eldan_Exercise_03.AI_Tools
       knowledgeBase.Add("אין לנו על מי לסמוך, אלא על אבינו שבמילואים");
       knowledgeBase.Add("שנתיים ושמונה זה רצח שנתיים זה נצח");
       knowledgeBase.Add("פעם טייס - תמיד תותחן");
+
     }
 
     public string GetRandomPhrase()
